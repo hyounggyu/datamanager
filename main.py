@@ -18,7 +18,16 @@ class MainWindow(QtGui.QMainWindow):
         self.initUI()
 
     def initUI(self):
-        pass
+        newDatasetBtn    = QtGui.QPushButton('New')
+
+        centralWidget = QtGui.QWidget(self)
+        vbox = QtGui.QVBoxLayout(centralWidget)
+        vbox.addStretch(1)
+        vbox.addWidget(newDatasetBtn)
+
+        self.setCentralWidget(centralWidget)
+
+        self.statusBar().showMessage('Ready')
 
     def open(self):
         filename = QtGui.QFileDialog.getOpenFileName(self, caption='Select file')
@@ -44,6 +53,7 @@ class App(QtGui.QApplication):
 def usage():
     print("""command -i sample.h5""")
 
+
 def start():
     global app, dataset
     try:
@@ -68,6 +78,7 @@ def start():
 
     app = App(sys.argv)
     sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     start()
