@@ -9,9 +9,8 @@ from PyQt4 import QtGui
 
 class NewWindow(QtGui.QMainWindow):
 
-    def __init__(self, dataset=None, parent=None):
-        super(MainWindow, self).__init__(parent)
-        self.dataset = dataset
+    def __init__(self, parent=None):
+        super(NewWindow, self).__init__(parent)
         self.initUI()
 
     def initUI(self):

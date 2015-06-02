@@ -8,6 +8,7 @@ from PyQt4 import QtGui
 
 from progress import ProgressWindow
 from view import ViewWindow
+from new import NewWindow
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -18,7 +19,8 @@ class MainWindow(QtGui.QMainWindow):
         self.initUI()
 
     def initUI(self):
-        newDatasetBtn    = QtGui.QPushButton('New')
+        newDatasetBtn = QtGui.QPushButton('New')
+        newDatasetBtn.clicked.connect(self.new)
 
         centralWidget = QtGui.QWidget(self)
         vbox = QtGui.QVBoxLayout(centralWidget)
@@ -28,6 +30,10 @@ class MainWindow(QtGui.QMainWindow):
         self.setCentralWidget(centralWidget)
 
         self.statusBar().showMessage('Ready')
+
+    def new(self):
+        win = NewWindow(parent=self)
+        win.show()
 
     def open(self):
         filename = QtGui.QFileDialog.getOpenFileName(self, caption='Select file')
