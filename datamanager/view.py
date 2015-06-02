@@ -13,7 +13,7 @@ def swap(im):
         return None
 
 
-class ImageViewWindow(QtGui.QMainWindow):
+class ViewWindow(QtGui.QMainWindow):
 
     image = None
 

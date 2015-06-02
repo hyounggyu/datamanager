@@ -7,7 +7,7 @@ import getopt
 from PyQt4 import QtGui
 
 from progress import ProgressWindow
-from imageview import ImageViewWindow
+from view import ViewWindow
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -54,7 +54,7 @@ def usage():
     print("""command -i sample.h5""")
 
 
-def start():
+def main():
     global app, dataset
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'hi:', ['help', 'input='])
@@ -81,4 +81,4 @@ def start():
 
 
 if __name__ == '__main__':
-    start()
+    main()
