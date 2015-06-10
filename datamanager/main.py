@@ -9,7 +9,7 @@ from PyQt4 import QtGui
 from progress import ProgressWindow
 from view import ViewWindow
 from new import NewWindow
-
+from config import ConfigWindow
 
 class MainWindow(QtGui.QMainWindow):
 
@@ -26,7 +26,10 @@ class MainWindow(QtGui.QMainWindow):
         openDatasetBtn.clicked.connect(self.open)
 
         viewDatasetBtn = QtGui.QPushButton('View Dataset')
-        viewDatasetBtn.clicked.connect(self.view)
+        #viewDatasetBtn.clicked.connect(self.view)
+
+        configBtn = QtGui.QPushButton('Config')
+        configBtn.clicked.connect(self.config)
 
         centralWidget = QtGui.QWidget(self)
         vbox = QtGui.QVBoxLayout(centralWidget)
@@ -34,9 +37,9 @@ class MainWindow(QtGui.QMainWindow):
         vbox.addWidget(newDatasetBtn)
         vbox.addWidget(openDatasetBtn)
         vbox.addWidget(viewDatasetBtn)
-
+        vbox.addWidget(configBtn)
         self.setCentralWidget(centralWidget)
-
+        self.setWindowTitle('XNI Data Manager')
         self.statusBar().showMessage('Ready')
 
     def new(self):
@@ -48,6 +51,9 @@ class MainWindow(QtGui.QMainWindow):
 
     def view(self):
         ViewWindow(None, parent=self)
+
+    def config(self):
+        ConfigWindow(parent=self)
 
 
 class App(QtGui.QApplication):
