@@ -19,13 +19,21 @@ class MainWindow(QtGui.QMainWindow):
         self.initUI()
 
     def initUI(self):
-        newDatasetBtn = QtGui.QPushButton('New')
+        newDatasetBtn = QtGui.QPushButton('New Dataset')
         newDatasetBtn.clicked.connect(self.new)
+
+        openDatasetBtn = QtGui.QPushButton('Open Dataset')
+        openDatasetBtn.clicked.connect(self.open)
+
+        viewDatasetBtn = QtGui.QPushButton('View Dataset')
+        viewDatasetBtn.clicked.connect(self.view)
 
         centralWidget = QtGui.QWidget(self)
         vbox = QtGui.QVBoxLayout(centralWidget)
         vbox.addStretch(1)
         vbox.addWidget(newDatasetBtn)
+        vbox.addWidget(openDatasetBtn)
+        vbox.addWidget(viewDatasetBtn)
 
         self.setCentralWidget(centralWidget)
 
@@ -39,7 +47,7 @@ class MainWindow(QtGui.QMainWindow):
         filename = QtGui.QFileDialog.getOpenFileName(self, caption='Select file')
 
     def view(self):
-        ImageViewWindow(data, parent=self)
+        ViewWindow(None, parent=self)
 
 
 class App(QtGui.QApplication):

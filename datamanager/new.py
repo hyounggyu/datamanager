@@ -33,7 +33,6 @@ class NewWindow(QtGui.QMainWindow):
         self.darkimgBtn   = QtGui.QPushButton('Select')
         self.sftdirBtn    = QtGui.QPushButton('Select')
         self.posfnBtn     = QtGui.QPushButton('Select')
-        self.plotshiftBtn = QtGui.QPushButton('Plot')
         self.runshiftBtn  = QtGui.QPushButton('Run')
 
         grid1 = QtGui.QGridLayout()
@@ -52,26 +51,13 @@ class NewWindow(QtGui.QMainWindow):
         group1 = QtGui.QGroupBox('Base Configuration')
         group1.setLayout(grid1)
 
-        grid2 = QtGui.QGridLayout()
-        grid2.setSpacing(10)
-        grid2.addWidget(self.sftdirLabel,  1, 0)
-        grid2.addWidget(self.sftdirEdit,   1, 1)
-        grid2.addWidget(self.sftdirBtn,    1, 2)
-        grid2.addWidget(self.posfnLabel,   2, 0)
-        grid2.addWidget(self.posfnEdit,    2, 1)
-        grid2.addWidget(self.posfnBtn,     2, 2)
-        group2 = QtGui.QGroupBox('Shift Configuration')
-        group2.setLayout(grid2)
-
         hbox1 = QtGui.QHBoxLayout()
-        hbox1.addWidget(self.plotshiftBtn)
         hbox1.addWidget(self.runshiftBtn)
 
         centralWidget = QtGui.QWidget(self)
         vbox = QtGui.QVBoxLayout(centralWidget)
         vbox.addStretch(1)
         vbox.addWidget(group1)
-        vbox.addWidget(group2)
         vbox.addLayout(hbox1)
         self.setCentralWidget(centralWidget)
 

@@ -18,7 +18,7 @@ class ViewWindow(QtGui.QMainWindow):
     image = None
 
     def __init__(self, image, parent=None):
-        super(ImageViewWindow, self).__init__(parent)
+        super(ViewWindow, self).__init__(parent)
         self.image = image
         self.initUI()
 
