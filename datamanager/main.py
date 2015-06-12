@@ -6,7 +6,6 @@ import getopt
 
 from PyQt4 import QtGui
 
-from progress import ProgressWindow
 from view import ViewWindow
 from new import NewWindow
 from config import ConfigWindow

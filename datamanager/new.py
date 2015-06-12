@@ -199,7 +199,7 @@ class NewWindow(QtGui.QMainWindow):
 tgt: {}'''.format(len(images), len(bgnds), len(darks), os.path.basename(tgtfname))
 
         msgbox = QtGui.QMessageBox(self)
-        msgbox.setText('really?')
+        msgbox.setText('Really?')
         msgbox.setInformativeText(msg)
         msgbox.setStandardButtons(QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel)
         msgbox.setDefaultButton(QtGui.QMessageBox.Cancel);
