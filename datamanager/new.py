@@ -36,9 +36,7 @@ class Worker(QtCore.QObject):
 
 
     def process(self):
-        print("Worker")
         for i in range(10):
-            print(i)
             self.relay.emit(i)
             time.sleep(1)
         self.finished.emit()
@@ -195,8 +193,10 @@ class NewWindow(QtGui.QMainWindow):
 
 
     def confirm(self, images, bgnds, darks, tgtfname):
-        msg = '''{} images, {} bgnds, {} darks
-tgt: {}'''.format(len(images), len(bgnds), len(darks), os.path.basename(tgtfname))
+        msg = '''Number of images: {}
+Number of Background images: {}
+Number of Dark images: {}
+HDF5 filename: {}'''.format(len(images), len(bgnds), len(darks), os.path.basename(tgtfname))
 
         msgbox = QtGui.QMessageBox(self)
         msgbox.setText('Really?')
