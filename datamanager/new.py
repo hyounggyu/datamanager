@@ -29,7 +29,7 @@ def list_tiff(_dir, prefix):
 class Worker(QtCore.QObject):
 
     finished = QtCore.pyqtSignal()
-
+    relay = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None):
         super(Worker, self).__init__(parent)
@@ -39,6 +39,7 @@ class Worker(QtCore.QObject):
         print("Worker")
         for i in range(10):
             print(i)
+            self.relay.emit(i)
             time.sleep(1)
         self.finished.emit()
 
@@ -46,17 +47,23 @@ class Worker(QtCore.QObject):
 
 class NewWindow(QtGui.QMainWindow):
 
-
     srcdir = None
     tgtfname = None
-
 
     def __init__(self, parent=None):
         super(NewWindow, self).__init__(parent)
         self.initUI()
-        self.thread = QtCore.QThread()
 
     def initUI(self):
+        self.thread = QtCore.QThread()
+
+        self.progress = QtGui.QProgressDialog("Progress","Cancel",0,9)
+
+        self.worker = Worker()
+        self.worker.moveToThread(self.thread)
+        self.worker.relay.connect(self.update_progress)
+        self.worker.finished.connect(self.on_finish)
+
         self.srcdirLabel  = QtGui.QLabel('Source directory')
         self.srcdirLabel.setFixedWidth(200)
         self.srcdirBtn    = QtGui.QPushButton('Select')
@@ -167,27 +174,36 @@ class NewWindow(QtGui.QMainWindow):
             self.warning('Target file is None')
             return
 
+        ret = self.confirm(images, bgnds, darks, self.tgtfname)
+
+        if ret == QtGui.QMessageBox.Ok:
+            self.runBtn.setEnabled(False)
+            self.progress.setValue(0)
+            self.thread.started.connect(self.worker.process)
+            self.thread.start()
+
+        return
+
+
+    def on_finish(self):
+        self.runBtn.setEnabled(True)
+        self.thread.quit()
+
+
+    def update_progress(self, value):
+        self.progress.setValue(value)
+
+
+    def confirm(self, images, bgnds, darks, tgtfname):
         msg = '''{} images, {} bgnds, {} darks
-tgt: {}'''.format(len(images), len(bgnds), len(darks), os.path.basename(self.tgtfname))
+tgt: {}'''.format(len(images), len(bgnds), len(darks), os.path.basename(tgtfname))
 
         msgbox = QtGui.QMessageBox(self)
         msgbox.setText('really?')
         msgbox.setInformativeText(msg)
         msgbox.setStandardButtons(QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel)
         msgbox.setDefaultButton(QtGui.QMessageBox.Cancel);
-        ret = msgbox.exec_()
-
-
-        if ret == QtGui.QMessageBox.Ok:
-            worker = Worker()
-            worker.moveToThread(self.thread)
-            worker.finished.connect(self.on_finish)
-            self.thread.started.connect(worker.process)
-            self.runBtn.setEnabled(False)
-            self.thread.start()
-            #self.thread.wait()
-
-        return
+        return msgbox.exec_()
 
 
     def warning(self, msg):
@@ -195,7 +211,3 @@ tgt: {}'''.format(len(images), len(bgnds), len(darks), os.path.basename(self.tgt
         msgbox.setText(msg)
         msgbox.exec_()
 
-
-    def on_finish(self):
-        self.runBtn.setEnabled(True)
-        self.thread.quit()
