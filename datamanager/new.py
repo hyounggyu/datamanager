@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
-import re
 import getopt
+import re
+import sys
+import time
 
-from PyQt4 import QtGui
+from PyQt4 import QtCore, QtGui
 
 
-MSGBASE = '''{} images, {} bgnds, {} darks
-tgt: {}'''
 
 def list_tiff(_dir, prefix):
     if _dir == None or prefix == '':
@@ -24,6 +23,25 @@ def list_tiff(_dir, prefix):
             fns.append(fn)
 
     return fns
+
+
+
+class Worker(QtCore.QObject):
+
+    finished = QtCore.pyqtSignal()
+
+
+    def __init__(self, parent=None):
+        super(Worker, self).__init__(parent)
+
+
+    def process(self):
+        print("Worker")
+        for i in range(10):
+            print(i)
+            time.sleep(1)
+        self.finished.emit()
+
 
 
 class NewWindow(QtGui.QMainWindow):
@@ -91,11 +109,11 @@ class NewWindow(QtGui.QMainWindow):
         group3 = QtGui.QGroupBox('Experiment Configuration')
         group3.setLayout(grid3)
 
-        runBtn  = QtGui.QPushButton('Generate new dataset')
-        runBtn.clicked.connect(self.run)
+        self.runBtn = QtGui.QPushButton('Generate new dataset')
+        self.runBtn.clicked.connect(self.run)
 
         hbox1 = QtGui.QHBoxLayout()
-        hbox1.addWidget(runBtn)
+        hbox1.addWidget(self.runBtn)
 
         centralWidget = QtGui.QWidget(self)
         vbox = QtGui.QVBoxLayout(centralWidget)
@@ -134,16 +152,43 @@ class NewWindow(QtGui.QMainWindow):
         bgnds = list_tiff(self.srcdir, bgnd_prefix)
         darks = list_tiff(self.srcdir, dark_prefix)
 
-        # 소스 디렉토리, 타켓 파일 점검하기
-        msg = MSGBASE.format(len(images), len(bgnds), len(darks), os.path.basename(self.tgtfname))
+        if len(images) == 0:
+            self.warning('Can not find images.')
+            return
+
+        if self.tgtfname == None:
+            self.warning('Target file is None')
+            return
+
+        msg = '''{} images, {} bgnds, {} darks
+tgt: {}'''.format(len(images), len(bgnds), len(darks), os.path.basename(self.tgtfname))
 
         msgbox = QtGui.QMessageBox(self)
-        msgbox.setText('ㅇㅋ?')
+        msgbox.setText('really?')
         msgbox.setInformativeText(msg)
         msgbox.setStandardButtons(QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel)
         msgbox.setDefaultButton(QtGui.QMessageBox.Cancel);
         ret = msgbox.exec_()
 
-        # image 파일이 하나도 없을 때 처리
-        # ret 값에 따라 처리
-        # HDF5 그룹과 데이터셋 이름 정하기
+
+        if ret == QtGui.QMessageBox.Ok:
+            worker = Worker()
+            worker.moveToThread(self.thread)
+            worker.finished.connect(self.on_finish)
+            self.thread.started.connect(worker.process)
+            self.runBtn.setEnabled(False)
+            self.thread.start()
+            #self.thread.wait()
+
+        return
+
+
+    def warning(self, msg):
+        msgbox = QtGui.QMessageBox(self)
+        msgbox.setText(msg)
+        msgbox.exec_()
+
+
+    def on_finish(self):
+        self.runBtn.setEnabled(True)
+        self.thread.quit()
