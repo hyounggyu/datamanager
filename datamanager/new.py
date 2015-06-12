@@ -180,8 +180,9 @@ class NewWindow(QtGui.QMainWindow):
             self.worker.relay.connect(self.progress.setValue)
             self.worker.finished.connect(self.thread.quit)
             self.progress.canceled.connect(self.worker.stop)
+            self.progress.setWindowModality(QtCore.Qt.WindowModal)
             self.thread.start()
-            self.progress.exec_()
+            self.progress.setValue(0)
 
         return
 
