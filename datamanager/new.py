@@ -175,16 +175,15 @@ class NewWindow(QtGui.QMainWindow):
         ret = self.confirm(images, bgnds, darks, self.tgtfname)
 
         if ret == QtGui.QMessageBox.Ok:
-            self.runBtn.setEnabled(False)
-            self.progress.setValue(0)
             self.thread.started.connect(self.worker.process)
             self.thread.start()
+            self.progress.setValue(0)
+            self.progress.exec_()
 
         return
 
 
     def on_finish(self):
-        self.runBtn.setEnabled(True)
         self.thread.quit()
 
 
