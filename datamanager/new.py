@@ -46,12 +46,15 @@ class Worker(QtCore.QObject):
 
 class NewWindow(QtGui.QMainWindow):
 
+
     srcdir = None
     tgtfname = None
+
 
     def __init__(self, parent=None):
         super(NewWindow, self).__init__(parent)
         self.initUI()
+        self.thread = QtCore.QThread()
 
     def initUI(self):
         self.srcdirLabel  = QtGui.QLabel('Source directory')
@@ -127,11 +130,13 @@ class NewWindow(QtGui.QMainWindow):
         self.statusBar().showMessage('Ready')
         self.show()
 
+
     def selectSourceDirectory(self):
         _dir = QtGui.QFileDialog.getExistingDirectory(self, caption="Select source directory")
         if _dir != '':
             self.srcdir = _dir
             self.statusBar().showMessage('{} directory selected.'.format(os.path.basename(self.srcdir)))
+
 
     def selectTargetFilename(self):
         fn = QtGui.QFileDialog.getSaveFileName(self, caption="Select target file")
@@ -139,9 +144,11 @@ class NewWindow(QtGui.QMainWindow):
             self.tgtfname = fn
             self.statusBar().showMessage('{} file selected.'.format(os.path.basename(self.tgtfname)))
 
+
     def countImages(self, prefix):
         fns = list_tiff(self.srcdir, prefix)
         self.statusBar().showMessage('{} image files selected.'.format(len(fns)))
+
 
     def run(self):
         image_prefix = self.prefixEdit.text()
