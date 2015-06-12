@@ -30,6 +30,7 @@ class Worker(QtCore.QObject):
 
     finished = QtCore.pyqtSignal()
     relay = QtCore.pyqtSignal(int)
+    isFinished = False
 
     def __init__(self, parent=None):
         super(Worker, self).__init__(parent)
@@ -37,10 +38,15 @@ class Worker(QtCore.QObject):
 
     def process(self):
         for i in range(10):
-            self.relay.emit(i)
+            if self.isFinished == True:
+                break
             time.sleep(1)
+            self.relay.emit(i)
+            QtGui.QApplication.processEvents()
         self.finished.emit()
 
+    def stop(self):
+        self.isFinished = True
 
 
 class NewWindow(QtGui.QMainWindow):
@@ -53,15 +59,6 @@ class NewWindow(QtGui.QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.thread = QtCore.QThread()
-
-        self.progress = QtGui.QProgressDialog("Progress","Cancel",0,9)
-
-        self.worker = Worker()
-        self.worker.moveToThread(self.thread)
-        self.worker.relay.connect(self.update_progress)
-        self.worker.finished.connect(self.on_finish)
-
         self.srcdirLabel  = QtGui.QLabel('Source directory')
         self.srcdirLabel.setFixedWidth(200)
         self.srcdirBtn    = QtGui.QPushButton('Select')
@@ -175,20 +172,18 @@ class NewWindow(QtGui.QMainWindow):
         ret = self.confirm(images, bgnds, darks, self.tgtfname)
 
         if ret == QtGui.QMessageBox.Ok:
+            self.thread = QtCore.QThread()
+            self.worker = Worker()
+            self.progress = QtGui.QProgressDialog("Progress","Cancel",0,9)
             self.thread.started.connect(self.worker.process)
+            self.worker.moveToThread(self.thread)
+            self.worker.relay.connect(self.progress.setValue)
+            self.worker.finished.connect(self.thread.quit)
+            self.progress.canceled.connect(self.worker.stop)
             self.thread.start()
-            self.progress.setValue(0)
             self.progress.exec_()
 
         return
-
-
-    def on_finish(self):
-        self.thread.quit()
-
-
-    def update_progress(self, value):
-        self.progress.setValue(value)
 
 
     def confirm(self, images, bgnds, darks, tgtfname):
