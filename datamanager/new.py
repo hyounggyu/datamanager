@@ -175,6 +175,8 @@ class NewWindow(QtGui.QMainWindow):
             self.progress.canceled.connect(self.worker.stop)
             self.thread.start()
             self.progress.exec_()
+            if self.progress.wasCanceled():
+                pass
 
     def confirm(self, images, bgnds, darks, tgtfname):
         msg = '''Number of images: {}
@@ -193,4 +195,3 @@ HDF5 filename: {}'''.format(len(images), len(bgnds), len(darks), os.path.basenam
         msgbox = QtGui.QMessageBox(self)
         msgbox.setText(msg)
         msgbox.exec_()
-
