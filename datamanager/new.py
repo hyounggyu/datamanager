@@ -9,7 +9,6 @@ import time
 from PyQt4 import QtCore, QtGui
 
 
-
 def list_tiff(_dir, prefix):
     if _dir == None or prefix == '':
         return []
@@ -25,7 +24,6 @@ def list_tiff(_dir, prefix):
     return fns
 
 
-
 class Worker(QtCore.QObject):
 
     finished = QtCore.pyqtSignal()
@@ -34,7 +32,6 @@ class Worker(QtCore.QObject):
 
     def __init__(self, parent=None):
         super(Worker, self).__init__(parent)
-
 
     def process(self):
         for i in range(10):
@@ -132,13 +129,11 @@ class NewWindow(QtGui.QMainWindow):
         self.statusBar().showMessage('Ready')
         self.show()
 
-
     def selectSourceDirectory(self):
         _dir = QtGui.QFileDialog.getExistingDirectory(self, caption="Select source directory")
         if _dir != '':
             self.srcdir = _dir
             self.statusBar().showMessage('{} directory selected.'.format(os.path.basename(self.srcdir)))
-
 
     def selectTargetFilename(self):
         fn = QtGui.QFileDialog.getSaveFileName(self, caption="Select target file")
@@ -146,11 +141,9 @@ class NewWindow(QtGui.QMainWindow):
             self.tgtfname = fn
             self.statusBar().showMessage('{} file selected.'.format(os.path.basename(self.tgtfname)))
 
-
     def countImages(self, prefix):
         fns = list_tiff(self.srcdir, prefix)
         self.statusBar().showMessage('{} image files selected.'.format(len(fns)))
-
 
     def run(self):
         image_prefix = self.prefixEdit.text()
@@ -183,9 +176,6 @@ class NewWindow(QtGui.QMainWindow):
             self.thread.start()
             self.progress.exec_()
 
-        return
-
-
     def confirm(self, images, bgnds, darks, tgtfname):
         msg = '''Number of images: {}
 Number of Background images: {}
@@ -198,7 +188,6 @@ HDF5 filename: {}'''.format(len(images), len(bgnds), len(darks), os.path.basenam
         msgbox.setStandardButtons(QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel)
         msgbox.setDefaultButton(QtGui.QMessageBox.Cancel);
         return msgbox.exec_()
-
 
     def warning(self, msg):
         msgbox = QtGui.QMessageBox(self)
