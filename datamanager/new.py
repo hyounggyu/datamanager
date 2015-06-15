@@ -177,6 +177,7 @@ class NewWindow(QtGui.QMainWindow):
             self.progress.exec_()
             if self.progress.wasCanceled():
                 pass
+                # TODO:
 
     def confirm(self, images, bgnds, darks, tgtfname):
         msg = '''Number of images: {}
