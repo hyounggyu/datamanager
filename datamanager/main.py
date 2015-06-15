@@ -32,7 +32,7 @@ class MainWindow(QtGui.QMainWindow):
         vbox.addStretch(1)
         vbox.addWidget(newDatasetBtn)
         vbox.addWidget(viewDatasetBtn)
-        vbox.addWidget(configBtn)
+        #vbox.addWidget(configBtn)
         self.setCentralWidget(centralWidget)
         self.setWindowTitle('XNI Data Manager')
         self.statusBar().showMessage('Ready')

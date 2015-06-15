@@ -17,12 +17,15 @@ class ViewWindow(QtGui.QMainWindow):
 
     image = None
 
-    def __init__(self, image, parent=None):
+    def __init__(self, parent=None):
         super(ViewWindow, self).__init__(parent)
 
         filename = QtGui.QFileDialog.getOpenFileName(self, caption='Select file')
-        self.image = image
-        self.initUI()
+        if filename == '':
+            self.warning('File does not selected')
+        else:
+            self.image = image
+            self.initUI()
 
     def initUI(self):
         imv = pg.ImageView()
@@ -30,3 +33,8 @@ class ViewWindow(QtGui.QMainWindow):
         self.setCentralWidget(imv)
         self.setWindowTitle('ImageView')
         self.show()
+
+    def warning(self, msg):
+        msgbox = QtGui.QMessageBox(self)
+        msgbox.setText(msg)
+        msgbox.exec_()
