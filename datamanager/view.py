@@ -23,16 +23,24 @@ class ViewWindow(QtGui.QMainWindow):
         filename = QtGui.QFileDialog.getOpenFileName(self, caption='Select file')
         if filename == '':
             self.warning('File does not selected')
-        else:
-            self.image = image
+            return
+        else
+            self.openfile(filename)
             self.initUI()
 
     def initUI(self):
-        imv = pg.ImageView()
-        imv.setImage(swap(self.image))
-        self.setCentralWidget(imv)
-        self.setWindowTitle('ImageView')
-        self.show()
+        pass
+        # TODO:
+        #imv = pg.ImageView()
+        #imv.setImage(swap(self.image))
+        #self.setCentralWidget(imv)
+        #self.setWindowTitle('ImageView')
+        #self.show()
+
+    def openfile(self):
+        pass
+        # TODO:
+        #self.image = image
 
     def warning(self, msg):
         msgbox = QtGui.QMessageBox(self)
