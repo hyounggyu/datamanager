@@ -10,31 +10,27 @@ from view import ViewWindow
 from new import NewWindow
 from config import ConfigWindow
 
+
 class MainWindow(QtGui.QMainWindow):
 
-    def __init__(self, dataset=None, parent=None):
+    def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
-        self.dataset = dataset
         self.initUI()
 
     def initUI(self):
         newDatasetBtn = QtGui.QPushButton('New Dataset')
         newDatasetBtn.clicked.connect(self.new)
 
-        openDatasetBtn = QtGui.QPushButton('Open Dataset')
-        openDatasetBtn.clicked.connect(self.open)
-
         viewDatasetBtn = QtGui.QPushButton('View Dataset')
-        #viewDatasetBtn.clicked.connect(self.view)
+        viewDatasetBtn.clicked.connect(self.view)
 
-        configBtn = QtGui.QPushButton('Config')
-        configBtn.clicked.connect(self.config)
+        #configBtn = QtGui.QPushButton('Config')
+        #configBtn.clicked.connect(self.config)
 
         centralWidget = QtGui.QWidget(self)
         vbox = QtGui.QVBoxLayout(centralWidget)
         vbox.addStretch(1)
         vbox.addWidget(newDatasetBtn)
-        vbox.addWidget(openDatasetBtn)
         vbox.addWidget(viewDatasetBtn)
         vbox.addWidget(configBtn)
         self.setCentralWidget(centralWidget)
@@ -42,17 +38,13 @@ class MainWindow(QtGui.QMainWindow):
         self.statusBar().showMessage('Ready')
 
     def new(self):
-        win = NewWindow(parent=self)
-        win.show()
-
-    def open(self):
-        filename = QtGui.QFileDialog.getOpenFileName(self, caption='Select file')
+        NewWindow(parent=self)
 
     def view(self):
-        ViewWindow(None, parent=self)
+        ViewWindow(parent=self)
 
-    def config(self):
-        ConfigWindow(parent=self)
+    #def config(self):
+    #    ConfigWindow(parent=self)
 
 
 class App(QtGui.QApplication):
@@ -70,13 +62,13 @@ class App(QtGui.QApplication):
 
 
 def usage():
-    print("""command -i sample.h5""")
+    print('''Usage: TODO:''')
 
 
 def main():
     global app, dataset
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'hi:', ['help', 'input='])
+        opts, args = getopt.getopt(sys.argv[1:], 'h', ['help'])
     except getopt.GetoptError as err:
         print(err)
         usage()
@@ -86,12 +78,6 @@ def main():
         if o in ('-h', '--help'):
             usage()
             sys.exit()
-        elif o in ('-i', '--input'):
-            try:
-                dataset = Dataset(a)
-            except OSError as err:
-                print(err)
-                sys.exit(2)
         else:
             pass
 

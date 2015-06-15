@@ -19,6 +19,8 @@ class ViewWindow(QtGui.QMainWindow):
 
     def __init__(self, image, parent=None):
         super(ViewWindow, self).__init__(parent)
+
+        filename = QtGui.QFileDialog.getOpenFileName(self, caption='Select file')
         self.image = image
         self.initUI()
 
