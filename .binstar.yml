@@ -27,13 +27,6 @@ package: datamanager
 #  - MY_ENV=A CC=gcc
 #  - MY_ENV=B
 
-platform:
- - linux-64
- - osx-64
- - win-64
-engine:
- - python=3
-
 #===============================================================================
 # Script options
 # These options may be broken out into the before_script, script and after_script
@@ -57,6 +50,8 @@ engine:
 # after_failure:
 #   - echo "after_failure!"
 
+platform: linux-64
+engine: python=3
 script: conda build .
 
 #===============================================================================
