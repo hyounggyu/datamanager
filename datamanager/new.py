@@ -21,7 +21,7 @@ def list_tiff(_dir, prefix):
         if match(fn) is not None:
             fns.append(fn)
 
-    return fns
+    return sorted(fns)
 
 
 class Worker(QtCore.QObject):
