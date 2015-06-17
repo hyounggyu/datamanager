@@ -6,9 +6,9 @@ import getopt
 
 from PyQt4 import QtGui
 
-from view import ViewWindow
-from new import NewWindow
-from config import ConfigWindow
+from .view import ViewWindow
+from .new import NewWindow
+#from .config import ConfigWindow
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -65,8 +65,7 @@ def usage():
     print('''Usage: TODO:''')
 
 
-def main():
-    global app, dataset
+def start(argv=None, **kwargs):
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'h', ['help'])
     except getopt.GetoptError as err:
@@ -86,4 +85,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    start()

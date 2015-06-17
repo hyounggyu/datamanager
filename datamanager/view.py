@@ -24,7 +24,7 @@ class ViewWindow(QtGui.QMainWindow):
         if filename == '':
             self.warning('File does not selected')
             return
-        else
+        else:
             self.openfile(filename)
             self.initUI()
 

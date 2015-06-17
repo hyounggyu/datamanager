@@ -2,11 +2,21 @@ package:
   name: datamanager
   version: 0.0.1
 
-app:
-  entry: datamanager
-  summary: DataManager
-  type: desk
+build:
+  entry_points:
+    - datamanager = datamanager:start_datamanager
+
+requirements:
+  build:
+    - python
+  run:
+    - python
 
 about:
   home: http://hyounggyu.com/datamanager
   license: GPL
+
+app:
+  entry: datamanager
+  summary: DataManager
+  type: desk
