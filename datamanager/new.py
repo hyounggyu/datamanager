@@ -7,21 +7,9 @@ import sys
 import time
 
 from PyQt4 import QtCore, QtGui
+import h5py
 
-
-def list_tiff(_dir, prefix):
-    if _dir == None or prefix == '':
-        return []
-
-    pattern = '^{}.*(tif|tiff)$'.format(prefix)
-    match = re.compile(pattern, re.I).match
-    fns = []
-    for fn in os.listdir(_dir):
-        fn = os.path.normcase(fn)
-        if match(fn) is not None:
-            fns.append(fn)
-
-    return sorted(fns)
+from .tifffile import imread
 
 
 class Worker(QtCore.QObject):
@@ -30,17 +18,49 @@ class Worker(QtCore.QObject):
     relay = QtCore.pyqtSignal(int)
     isFinished = False
 
-    def __init__(self, parent=None):
+    def __init__(self, output, images, bgnds=[], darks=[], 
+        groupname='original',
+        images_dsetname='images',
+        bgnds_dsetname='bgnds',
+        darks_dsetname='darks',
+        dtype='i2',
+        parent=None):
+
         super(Worker, self).__init__(parent)
 
+        self.images = images
+        self.bgnds = bgnds
+        self.darks = darks
+        self.images_dsetname = images_dsetname
+        self.bgnds_dsetname = bgnds_dsetname
+        self.darks_dsetname = darks_dsetname
+        self.dtype = dtype
+
     def process(self):
-        for i in range(10):
+        ny, nx = imread(self.images[0]).shape # All images are same shape
+
+        self.fd = h5py.File(output, 'w')
+        self.grp = self.fd.create_group(groupname)
+
+        sub_run(bgnds_dsetname, self.bgnds, ny, nx)
+        sub_run(darks_dsetname, self.darks, ny, nx)
+
+        self.images_dset = self.grp.create_dataset(self.images_dsetname, (len(self.images), ny, nx), dtype=dtype)
+        for i in range(len(self.images)):
             if self.isFinished == True:
                 break
-            time.sleep(1)
+            images_dset[i,:,:] = imread(self.images[i])[:,:]
             self.relay.emit(i)
             QtGui.QApplication.processEvents()
+
+        self.fd.close()
         self.finished.emit()
+
+    def sub_run(self, dsetname, flist, ny, nx):
+        if len(flist) > 0:
+            dset = self.grp.create_dataset(dsetname, (len(flist), ny, nx), dtype=self.dtype)
+            for i in range(len(flist)):
+                dset[i,:,:] = imread(flist[i])[:,:]
 
     def stop(self):
         self.isFinished = True
@@ -48,8 +68,8 @@ class Worker(QtCore.QObject):
 
 class NewWindow(QtGui.QMainWindow):
 
-    srcdir = None
-    tgtfname = None
+    _dir = None
+    output = None
 
     def __init__(self, parent=None):
         super(NewWindow, self).__init__(parent)
@@ -138,36 +158,51 @@ class NewWindow(QtGui.QMainWindow):
     def selectTargetFilename(self):
         fn = QtGui.QFileDialog.getSaveFileName(self, caption="Select target file")
         if fn != '':
-            self.tgtfname = fn
-            self.statusBar().showMessage('{} file selected.'.format(os.path.basename(self.tgtfname)))
+            self.output = fn
+            self.statusBar().showMessage('{} file selected.'.format(os.path.basename(self.output)))
+
+    def _list(self, prefix):
+        if self._dir == None or self._dir == '':
+            return []
+        pattern = '^{}.*(tif|tiff)$'.format(prefix)
+        match = re.compile(pattern, re.I).match
+        fns = []
+        for fn in os.listdir(self._dir):
+            fn = os.path.normcase(fn)
+            if match(fn) is not None:
+                fns.append(fn)
+        return sorted(fns)
 
     def countImages(self, prefix):
-        fns = list_tiff(self.srcdir, prefix)
+        fns = self._list(prefix)
         self.statusBar().showMessage('{} image files selected.'.format(len(fns)))
 
     def run(self):
         image_prefix = self.prefixEdit.text()
-        bgnd_prefix = self.bgndprefixEdit.text()
-        dark_prefix = self.darkprefixEdit.text()
+        images = self._list(image_prefix)
 
-        images = list_tiff(self.srcdir, image_prefix)
-        bgnds = list_tiff(self.srcdir, bgnd_prefix)
-        darks = list_tiff(self.srcdir, dark_prefix)
+        if image_prefix == '':
+            self.warning('Image prefix is empty.')
 
         if len(images) == 0:
             self.warning('Can not find images.')
             return
 
-        if self.tgtfname == None:
-            self.warning('Target file is None')
+        bgnd_prefix = self.bgndprefixEdit.text()
+        dark_prefix = self.darkprefixEdit.text()
+        bgnds = self._list(bgnd_prefix) if bgnd_prefix != '' else []
+        darks = self._list(dark_prefix) if dark_prefix != '' else []
+
+        if self.output == None:
+            self.warning('Target file is None.')
             return
 
-        ret = self.confirm(images, bgnds, darks, self.tgtfname)
+        ret = self.confirm(self.output, images, bgnds, darks)
 
         if ret == QtGui.QMessageBox.Ok:
             self.thread = QtCore.QThread()
-            self.worker = Worker()
-            self.progress = QtGui.QProgressDialog("Progress","Cancel",0,9)
+            self.worker = Worker(self.output, images, bgnds, darks)
+            self.progress = QtGui.QProgressDialog("Progress","Cancel",0,len(images))
             self.thread.started.connect(self.worker.process)
             self.worker.moveToThread(self.thread)
             self.worker.relay.connect(self.progress.setValue)
@@ -177,13 +212,12 @@ class NewWindow(QtGui.QMainWindow):
             self.progress.exec_()
             if self.progress.wasCanceled():
                 pass
-                # TODO:
 
-    def confirm(self, images, bgnds, darks, tgtfname):
+    def confirm(self, output, images, bgnds, darks):
         msg = '''Number of images: {}
 Number of Background images: {}
 Number of Dark images: {}
-HDF5 filename: {}'''.format(len(images), len(bgnds), len(darks), os.path.basename(tgtfname))
+HDF5 filename: {}'''.format(len(images), len(bgnds), len(darks), os.path.basename(output))
 
         msgbox = QtGui.QMessageBox(self)
         msgbox.setText('Really?')
