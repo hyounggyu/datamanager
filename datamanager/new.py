@@ -9,7 +9,7 @@ import time
 from PyQt4 import QtCore, QtGui
 import h5py
 
-from .tifffile import imread
+from skimage.external.tifffile import imread
 
 
 class Worker(QtCore.QObject):
@@ -28,9 +28,11 @@ class Worker(QtCore.QObject):
 
         super(Worker, self).__init__(parent)
 
+        self.output = output
         self.images = images
         self.bgnds = bgnds
         self.darks = darks
+        self.groupname = groupname
         self.images_dsetname = images_dsetname
         self.bgnds_dsetname = bgnds_dsetname
         self.darks_dsetname = darks_dsetname
@@ -39,13 +41,13 @@ class Worker(QtCore.QObject):
     def process(self):
         ny, nx = imread(self.images[0]).shape # All images are same shape
 
-        self.fd = h5py.File(output, 'w')
-        self.grp = self.fd.create_group(groupname)
+        self.fd = h5py.File(self.output, 'w')
+        self.grp = self.fd.create_group(self.groupname)
 
-        sub_run(bgnds_dsetname, self.bgnds, ny, nx)
-        sub_run(darks_dsetname, self.darks, ny, nx)
+        self.run_no_eventloop(self.bgnds_dsetname, self.bgnds, ny, nx)
+        self.run_no_eventloop(self.darks_dsetname, self.darks, ny, nx)
 
-        self.images_dset = self.grp.create_dataset(self.images_dsetname, (len(self.images), ny, nx), dtype=dtype)
+        images_dset = self.grp.create_dataset(self.images_dsetname, (len(self.images), ny, nx), dtype=self.dtype)
         for i in range(len(self.images)):
             if self.isFinished == True:
                 break
@@ -56,7 +58,7 @@ class Worker(QtCore.QObject):
         self.fd.close()
         self.finished.emit()
 
-    def sub_run(self, dsetname, flist, ny, nx):
+    def run_no_eventloop(self, dsetname, flist, ny, nx):
         if len(flist) > 0:
             dset = self.grp.create_dataset(dsetname, (len(flist), ny, nx), dtype=self.dtype)
             for i in range(len(flist)):
@@ -152,8 +154,8 @@ class NewWindow(QtGui.QMainWindow):
     def selectSourceDirectory(self):
         _dir = QtGui.QFileDialog.getExistingDirectory(self, caption="Select source directory")
         if _dir != '':
-            self.srcdir = _dir
-            self.statusBar().showMessage('{} directory selected.'.format(os.path.basename(self.srcdir)))
+            self._dir = _dir
+            self.statusBar().showMessage('{} directory selected.'.format(os.path.basename(self._dir)))
 
     def selectTargetFilename(self):
         fn = QtGui.QFileDialog.getSaveFileName(self, caption="Select target file")
@@ -166,12 +168,12 @@ class NewWindow(QtGui.QMainWindow):
             return []
         pattern = '^{}.*(tif|tiff)$'.format(prefix)
         match = re.compile(pattern, re.I).match
-        fns = []
+        result = []
         for fn in os.listdir(self._dir):
             fn = os.path.normcase(fn)
             if match(fn) is not None:
-                fns.append(fn)
-        return sorted(fns)
+                result.append(os.path.join(self._dir, fn))
+        return sorted(result)
 
     def countImages(self, prefix):
         fns = self._list(prefix)
@@ -202,7 +204,7 @@ class NewWindow(QtGui.QMainWindow):
         if ret == QtGui.QMessageBox.Ok:
             self.thread = QtCore.QThread()
             self.worker = Worker(self.output, images, bgnds, darks)
-            self.progress = QtGui.QProgressDialog("Progress","Cancel",0,len(images))
+            self.progress = QtGui.QProgressDialog("Progress","Cancel",0,len(images)-1)
             self.thread.started.connect(self.worker.process)
             self.worker.moveToThread(self.thread)
             self.worker.relay.connect(self.progress.setValue)
