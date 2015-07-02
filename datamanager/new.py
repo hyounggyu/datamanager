@@ -7,10 +7,8 @@ import sys
 import time
 
 from PyQt4 import QtCore, QtGui
-import h5py
 
-from skimage.external.tifffile import imread
-
+from xni import dataset
 
 class Worker(QtCore.QObject):
 
@@ -18,51 +16,22 @@ class Worker(QtCore.QObject):
     relay = QtCore.pyqtSignal(int)
     isFinished = False
 
-    def __init__(self, output, images, bgnds=[], darks=[], 
-        groupname='original',
-        images_dsetname='images',
-        bgnds_dsetname='bgnds',
-        darks_dsetname='darks',
-        dtype='i2',
-        parent=None):
-
+    def __init__(self, output, images, bgnds=[], darks=[], parent=None):
         super(Worker, self).__init__(parent)
-
         self.output = output
         self.images = images
         self.bgnds = bgnds
         self.darks = darks
-        self.groupname = groupname
-        self.images_dsetname = images_dsetname
-        self.bgnds_dsetname = bgnds_dsetname
-        self.darks_dsetname = darks_dsetname
-        self.dtype = dtype
 
     def process(self):
-        ny, nx = imread(self.images[0]).shape # All images are same shape
-
-        self.fd = h5py.File(self.output, 'w')
-        self.grp = self.fd.create_group(self.groupname)
-
-        self.run_no_eventloop(self.bgnds_dsetname, self.bgnds, ny, nx)
-        self.run_no_eventloop(self.darks_dsetname, self.darks, ny, nx)
-
-        images_dset = self.grp.create_dataset(self.images_dsetname, (len(self.images), ny, nx), dtype=self.dtype)
-        for i in range(len(self.images)):
+        for i, _ in dataset.new(self.output, self.images, self.bgnds, self.darks):
             if self.isFinished == True:
                 break
-            images_dset[i,:,:] = imread(self.images[i])[:,:]
             self.relay.emit(i)
             QtGui.QApplication.processEvents()
 
         self.fd.close()
         self.finished.emit()
-
-    def run_no_eventloop(self, dsetname, flist, ny, nx):
-        if len(flist) > 0:
-            dset = self.grp.create_dataset(dsetname, (len(flist), ny, nx), dtype=self.dtype)
-            for i in range(len(flist)):
-                dset[i,:,:] = imread(flist[i])[:,:]
 
     def stop(self):
         self.isFinished = True
