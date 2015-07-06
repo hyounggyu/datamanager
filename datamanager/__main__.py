@@ -1,8 +1,6 @@
-import sys
 import argparse
 from pathlib import Path
 
-from .gui import App
 
 def _findtiff(path, prefix):
     return [p for p in path.iterdir() if p.match(prefix.strip()+'*') and (p.suffix.lower() in ['.tif', '.tiff'])]
@@ -19,6 +17,12 @@ def new_dataset(args):
     for i, p in dataset.new(args.output, images, bgnds, darks):
         print(p)
 
+def run_qt(args):
+    import sys
+    from .gui import App
+    app = App(sys.argv)
+    sys.exit(app.exec_())
+
 def parse_args():
     parser = argparse.ArgumentParser(prog='datamanager')
     parser.add_argument('--gui', help='gui help', action='store_true')
@@ -26,6 +30,9 @@ def parse_args():
     parser.set_defaults(gui=True)
 
     subparsers = parser.add_subparsers(help='sub commands')
+
+    gui_parser = subparsers.add_parser('gui', help='gui help')
+    gui_parser.set_defaults(func=run_qt)
 
     new_parser = subparsers.add_parser('new', help='new help')
     new_parser.add_argument('path', help='path help')
@@ -36,12 +43,9 @@ def parse_args():
     new_parser.set_defaults(func=new_dataset)
 
     args = parser.parse_args()
-    if args.gui:
-        app = App(sys.argv)
-        sys.exit(app.exec_())
-    elif hasattr(args, 'func'):
+    if hasattr(args, 'func'):
         args.func(args)
     else:
-        args.print_help()
+        parser.print_help()
 
 parse_args()
