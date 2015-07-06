@@ -2,7 +2,7 @@ import sys
 import argparse
 from pathlib import Path
 
-from .main import App
+from .gui import App
 
 def _findtiff(path, prefix):
     return [p for p in path.iterdir() if p.match(prefix.strip()+'*') and (p.suffix.lower() in ['.tif', '.tiff'])]
