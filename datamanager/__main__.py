@@ -6,7 +6,7 @@ def _findtiff(path, prefix):
     return sorted([p for p in path.iterdir() if p.match(prefix.strip()+'*') and (p.suffix.lower() in ['.tif', '.tiff'])])
 
 def new_dataset(args):
-    from xni import dataset
+    from xni.io import dataset
     path = Path(args.path)
     images = _findtiff(path, args.image_prefix)
     bgnds = _findtiff(path, args.background_prefix) if args.background_prefix != None else []
