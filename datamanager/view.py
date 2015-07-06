@@ -6,32 +6,29 @@ import pyqtgraph as pg
 
 class ViewWindow(QtGui.QMainWindow):
 
-    image = None
+    #image = None
 
-    def __init__(self, parent=None):
+    def __init__(self, image, parent=None):
         super(ViewWindow, self).__init__(parent)
-        self.open()
-
-    def initUI(self):
         imv = pg.ImageView()
-        imv.setImage(self.image)
+        imv.setImage(image)
         self.setCentralWidget(imv)
         self.setWindowTitle('ImageView')
         self.show()
 
-    def open(self):
-        fname = QtGui.QFileDialog.getOpenFileName(self, caption='Select file')
-        if fname == '':
-            self.warning('File does not selected')
-            return
-        f = h5py.File(fname, 'r')
-        dset = f['original/images'] # TODO: selectable
-        arr = np.zeros(dset.shape, dtype=dset.dtype)
-        dset.read_direct(arr)
-        self.image = arr
-        self.initUI()
+    #def open(self):
+    #    fname = QtGui.QFileDialog.getOpenFileName(self, caption='Select file')
+    #    if fname == '':
+    #        self.warning('File does not selected')
+    #        return
+    #    f = h5py.File(fname, 'r')
+    #    dset = f['original/images'] # TODO: selectable
+    #    arr = np.zeros(dset.shape, dtype=dset.dtype)
+    #    dset.read_direct(arr)
+    #    self.image = arr
+    #    self.initUI()
 
-    def warning(self, msg):
-        msgbox = QtGui.QMessageBox(self)
-        msgbox.setText(msg)
-        msgbox.exec_()
+    #def warning(self, msg):
+    #    msgbox = QtGui.QMessageBox(self)
+    #    msgbox.setText(msg)
+    #    msgbox.exec_()

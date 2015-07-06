@@ -14,10 +14,23 @@ def new_dataset(args):
     images = [str(im) for im in images]
     bgnds = [str(im) for im in bgnds]
     darks = [str(im) for im in darks]
-    for i, p in dataset.new(args.output, images, bgnds, darks):
+    for i, p in dataset.create(args.output, images, bgnds, darks):
         print(p)
 
-def run_qt(args):
+def remote_view(args):
+    import sys
+    import zmq
+    from PyQt4 import QtGui
+    from xni.io import dataset
+    from .view import ViewWindow
+
+    dset = dataset.recv()
+
+    app = QtGui.QApplication(sys.argv)
+    win = ViewWindow(dset)
+    sys.exit(app.exec_())
+
+def run_qt():
     import sys
     from .gui import App
     app = App(sys.argv)
@@ -25,14 +38,9 @@ def run_qt(args):
 
 def parse_args():
     parser = argparse.ArgumentParser(prog='datamanager')
-    parser.add_argument('--gui', help='gui help', action='store_true')
     parser.add_argument('--version', help='version help')
-    parser.set_defaults(gui=True)
 
     subparsers = parser.add_subparsers(help='sub commands')
-
-    gui_parser = subparsers.add_parser('gui', help='gui help')
-    gui_parser.set_defaults(func=run_qt)
 
     new_parser = subparsers.add_parser('new', help='new help')
     new_parser.add_argument('path', help='path help')
@@ -42,10 +50,13 @@ def parse_args():
     new_parser.add_argument('-d', '--dark-prefix', help='dark image prefix help', required=False)
     new_parser.set_defaults(func=new_dataset)
 
+    rv_parser = subparsers.add_parser('remoteview', help='removeview help')
+    rv_parser.set_defaults(func=remote_view)
+
     args = parser.parse_args()
     if hasattr(args, 'func'):
         args.func(args)
     else:
-        parser.print_help()
+        run_qt()
 
 parse_args()

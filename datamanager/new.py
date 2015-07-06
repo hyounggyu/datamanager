@@ -8,7 +8,7 @@ import time
 
 from PyQt4 import QtCore, QtGui
 
-from xni import dataset
+from xni.io import dataset
 
 class Worker(QtCore.QObject):
 
@@ -24,7 +24,8 @@ class Worker(QtCore.QObject):
         self.darks = darks
 
     def process(self):
-        for i, _ in dataset.new(self.output, self.images, self.bgnds, self.darks):
+        map_obj = dataset.create(self.output, self.images, self.bgnds, self.darks)
+        for i, _ in map_obj:
             if self.isFinished == True:
                 break
             self.relay.emit(i)
