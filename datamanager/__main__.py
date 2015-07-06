@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 def _findtiff(path, prefix):
-    return [p for p in path.iterdir() if p.match(prefix.strip()+'*') and (p.suffix.lower() in ['.tif', '.tiff'])]
+    return sorted([p for p in path.iterdir() if p.match(prefix.strip()+'*') and (p.suffix.lower() in ['.tif', '.tiff'])])
 
 def new_dataset(args):
     from xni import dataset
