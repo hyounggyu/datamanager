@@ -1,5 +1,8 @@
+import sys
 import argparse
 from pathlib import Path
+
+from .main import App
 
 def _findtiff(path, prefix):
     return [p for p in path.iterdir() if p.match(prefix.strip()+'*') and (p.suffix.lower() in ['.tif', '.tiff'])]
@@ -13,21 +16,32 @@ def new_dataset(args):
     images = [str(im) for im in images]
     bgnds = [str(im) for im in bgnds]
     darks = [str(im) for im in darks]
-    nw = dataset.new(args.output, images, bgnds, darks)
-    for i, p in nw:
+    for i, p in dataset.new(args.output, images, bgnds, darks):
         print(p)
 
-parser = argparse.ArgumentParser(prog='datamanager')
-subparsers = parser.add_subparsers(help='sub commands')
+def parse_args():
+    parser = argparse.ArgumentParser(prog='datamanager')
+    parser.add_argument('--gui', help='gui help', action='store_true')
+    parser.add_argument('--version', help='version help')
+    parser.set_defaults(gui=True)
 
-new_parser = subparsers.add_parser('new', help='new help')
-new_parser.add_argument('path', help='path help')
-new_parser.add_argument('-o', '--output', help='output help')
-new_parser.add_argument('-i', '--image-prefix', help='image prefix help')
-new_parser.add_argument('-b', '--background-prefix', help='background image prefix help', required=False)
-new_parser.add_argument('-d', '--dark-prefix', help='dark image prefix help', required=False)
-new_parser.set_defaults(func=new_dataset)
+    subparsers = parser.add_subparsers(help='sub commands')
 
-args = parser.parse_args()
-if hasattr(args, 'func'):
-    args.func(args)
+    new_parser = subparsers.add_parser('new', help='new help')
+    new_parser.add_argument('path', help='path help')
+    new_parser.add_argument('-o', '--output', help='output help')
+    new_parser.add_argument('-i', '--image-prefix', help='image prefix help')
+    new_parser.add_argument('-b', '--background-prefix', help='background image prefix help', required=False)
+    new_parser.add_argument('-d', '--dark-prefix', help='dark image prefix help', required=False)
+    new_parser.set_defaults(func=new_dataset)
+
+    args = parser.parse_args()
+    if args.gui:
+        app = App(sys.argv)
+        sys.exit(app.exec_())
+    elif hasattr(args, 'func'):
+        args.func(args)
+    else:
+        args.print_help()
+
+parse_args()

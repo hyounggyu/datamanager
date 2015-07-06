@@ -2,10 +2,6 @@ package:
   name: datamanager
   version: 0.0.1
 
-build:
-  entry_points:
-    - datamanager = datamanager:start_datamanager
-
 requirements:
   build:
     - python
