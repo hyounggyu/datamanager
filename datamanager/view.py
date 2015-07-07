@@ -7,9 +7,8 @@ import pyqtgraph as pg
 
 from xni.io import dataset
 
-class ViewWindow(QtGui.QMainWindow):
 
-    #image = None
+class ViewWindow(QtGui.QMainWindow):
 
     def __init__(self, image, parent=None):
         super(ViewWindow, self).__init__(parent)
@@ -19,28 +18,15 @@ class ViewWindow(QtGui.QMainWindow):
         self.setWindowTitle('ImageView')
         self.show()
 
-    #def open(self):
-    #    fname = QtGui.QFileDialog.getOpenFileName(self, caption='Select file')
-    #    if fname == '':
-    #        self.warning('File does not selected')
-    #        return
-    #    f = h5py.File(fname, 'r')
-    #    dset = f['original/images'] # TODO: selectable
-    #    arr = np.zeros(dset.shape, dtype=dset.dtype)
-    #    dset.read_direct(arr)
-    #    self.image = arr
-    #    self.initUI()
-
-    #def warning(self, msg):
-    #    msgbox = QtGui.QMessageBox(self)
-    #    msgbox.setText(msg)
-    #    msgbox.exec_()
 
 def start_view(args):
-    dset = None
+    group_name = 'original' if args.group == None else args.group
+    dataset_name = 'images' if args.dataset == None else args.dataset
+    dset = dataset.load(args.filename, grp=group_name, dset=dataset_name)
     app = QtGui.QApplication(sys.argv)
     win = ViewWindow(dset)
     sys.exit(app.exec_())
+
 
 def start_remoteview(args):
     ip = '127.0.0.1' if args.ip == None else args.ip

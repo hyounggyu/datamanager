@@ -17,12 +17,18 @@ def parse_args():
     create_parser.add_argument('-d', '--dark-prefix', help='dark image prefix help', required=False)
     create_parser.set_defaults(func=start_create)
 
-    rv_parser = subparsers.add_parser('remoteview', help='removeview help')
-    rv_parser.add_argument('--ip', help='ip help', required=False)
-    rv_parser.add_argument('--port', help='port help', required=False)
-    rv_parser.add_argument('--slice', help='slice help default 0:1:1', required=False)
-    rv_parser.add_argument('--stop', help='stop help', required=False, action='store_true')
-    rv_parser.set_defaults(func=start_remoteview)
+    view_parser = subparsers.add_parser('view', help='view help')
+    view_parser.add_argument('filename', help='filename help')
+    view_parser.add_argument('--group', help='group help', required=False)
+    view_parser.add_argument('--dataset', help='dataset help', required=False)
+    view_parser.set_defaults(func=start_view)
+
+    remoteview_parser = subparsers.add_parser('remoteview', help='removeview help')
+    remoteview_parser.add_argument('--ip', help='ip help', required=False)
+    remoteview_parser.add_argument('--port', help='port help', required=False)
+    remoteview_parser.add_argument('--slice', help='slice help ex. 0:1:1', required=False)
+    remoteview_parser.add_argument('--stop', help='stop help', required=False, action='store_true')
+    remoteview_parser.set_defaults(func=start_remoteview)
 
     args = parser.parse_args()
     if hasattr(args, 'func'):
