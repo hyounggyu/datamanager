@@ -30,8 +30,6 @@ class Worker(QtCore.QObject):
                 break
             self.relay.emit(i)
             QtGui.QApplication.processEvents()
-
-        self.fd.close()
         self.finished.emit()
 
     def stop(self):
@@ -68,6 +66,10 @@ class CreateWindow(QtGui.QMainWindow):
         self.darkprefixEdit.textChanged[str].connect(self.countImages)
         self.darkprefixEdit.textEdited[str].connect(self.countImages)
 
+        self.tgtfileLabel  = QtGui.QLabel('Target file name')
+        self.tgtfileBtn    = QtGui.QPushButton('Select')
+        self.tgtfileBtn.clicked.connect(self.selectTargetFilename)
+
         grid1 = QtGui.QGridLayout()
         grid1.setSpacing(10)
         grid1.addWidget(self.srcdirLabel,  0, 0)
@@ -78,32 +80,12 @@ class CreateWindow(QtGui.QMainWindow):
         grid1.addWidget(self.bgndprefixEdit,  2, 1)
         grid1.addWidget(self.darkprefixLabel, 3, 0)
         grid1.addWidget(self.darkprefixEdit,  3, 1)
+        grid1.addWidget(self.tgtfileLabel, 4, 0)
+        grid1.addWidget(self.tgtfileBtn,   4, 1)
         group1 = QtGui.QGroupBox('Source Configuration')
         group1.setLayout(grid1)
 
-        self.tgtfileLabel  = QtGui.QLabel('Export file name')
-        self.tgtfileLabel.setFixedWidth(200)
-        self.tgtfileBtn    = QtGui.QPushButton('Select')
-        self.tgtfileBtn.clicked.connect(self.selectTargetFilename)
-
-        grid2 = QtGui.QGridLayout()
-        grid2.setSpacing(10)
-        grid2.addWidget(self.tgtfileLabel, 0, 0)
-        grid2.addWidget(self.tgtfileBtn,   0, 1)
-        group2 = QtGui.QGroupBox('Target Configuration')
-        group2.setLayout(grid2)
-
-        self.dateLabel = QtGui.QLabel('Experiment Date')
-        self.dateEdit = QtGui.QLabel('TODO:')
-
-        grid3 = QtGui.QGridLayout()
-        grid3.setSpacing(10)
-        grid3.addWidget(self.dateLabel, 0, 0)
-        grid3.addWidget(self.dateEdit,  0, 1)
-        group3 = QtGui.QGroupBox('Experiment Configuration')
-        group3.setLayout(grid3)
-
-        self.runBtn = QtGui.QPushButton('Generate new dataset')
+        self.runBtn = QtGui.QPushButton('Create dataset')
         self.runBtn.clicked.connect(self.run)
 
         hbox1 = QtGui.QHBoxLayout()
@@ -113,11 +95,9 @@ class CreateWindow(QtGui.QMainWindow):
         vbox = QtGui.QVBoxLayout(centralWidget)
         vbox.addStretch(1)
         vbox.addWidget(group1)
-        vbox.addWidget(group2)
-        vbox.addWidget(group3)
         vbox.addLayout(hbox1)
         self.setCentralWidget(centralWidget)
-        self.setWindowTitle('New Dataset')
+        self.setWindowTitle('Create Dataset')
         self.statusBar().showMessage('Ready')
         self.show()
 
@@ -203,10 +183,12 @@ HDF5 filename: {}'''.format(len(images), len(bgnds), len(darks), os.path.basenam
         msgbox.setText(msg)
         msgbox.exec_()
 
+
 def _findtiff(path, prefix):
     return sorted([p for p in path.iterdir() if p.match(prefix.strip()+'*') and (p.suffix.lower() in ['.tif', '.tiff'])])
 
-def create_dataset(args):
+
+def start_create(args):
     path = Path(args.path)
     images = _findtiff(path, args.image_prefix)
     bgnds = _findtiff(path, args.background_prefix) if args.background_prefix != None else []
@@ -217,7 +199,11 @@ def create_dataset(args):
     for i, p in dataset.create(args.output, images, bgnds, darks):
         print(p)
 
-def start_create():
+
+def start_createqt(args):
     app = QtGui.QApplication(sys.argv)
-    win = CreateWindow(dset)
+    win = CreateWindow()
+    win.show()
+    win.activateWindow()
+    win.raise_()
     sys.exit(app.exec_())
