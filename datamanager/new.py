@@ -1,14 +1,14 @@
-# -*- coding: utf-8 -*-
-
 import os
 import getopt
 import re
 import sys
 import time
+from pathlib import Path
 
 from PyQt4 import QtCore, QtGui
 
 from xni.io import dataset
+
 
 class Worker(QtCore.QObject):
 
@@ -38,13 +38,13 @@ class Worker(QtCore.QObject):
         self.isFinished = True
 
 
-class NewWindow(QtGui.QMainWindow):
+class CreateWindow(QtGui.QMainWindow):
 
     _dir = None
     output = None
 
     def __init__(self, parent=None):
-        super(NewWindow, self).__init__(parent)
+        super(CreateWindow, self).__init__(parent)
         self.initUI()
 
     def initUI(self):
@@ -202,3 +202,22 @@ HDF5 filename: {}'''.format(len(images), len(bgnds), len(darks), os.path.basenam
         msgbox = QtGui.QMessageBox(self)
         msgbox.setText(msg)
         msgbox.exec_()
+
+def _findtiff(path, prefix):
+    return sorted([p for p in path.iterdir() if p.match(prefix.strip()+'*') and (p.suffix.lower() in ['.tif', '.tiff'])])
+
+def create_dataset(args):
+    path = Path(args.path)
+    images = _findtiff(path, args.image_prefix)
+    bgnds = _findtiff(path, args.background_prefix) if args.background_prefix != None else []
+    darks = _findtiff(path, args.dark_prefix) if args.dark_prefix != None else []
+    images = [str(im) for im in images]
+    bgnds = [str(im) for im in bgnds]
+    darks = [str(im) for im in darks]
+    for i, p in dataset.create(args.output, images, bgnds, darks):
+        print(p)
+
+def start_create():
+    app = QtGui.QApplication(sys.argv)
+    win = CreateWindow(dset)
+    sys.exit(app.exec_())

@@ -3,6 +3,7 @@ import h5py
 from PyQt4 import QtGui
 import pyqtgraph as pg
 
+from xni.io import dataset
 
 class ViewWindow(QtGui.QMainWindow):
 
@@ -32,3 +33,15 @@ class ViewWindow(QtGui.QMainWindow):
     #    msgbox = QtGui.QMessageBox(self)
     #    msgbox.setText(msg)
     #    msgbox.exec_()
+
+def start_view(args):
+    dset = None
+    app = QtGui.QApplication(sys.argv)
+    win = ViewWindow(dset)
+    sys.exit(app.exec_())
+
+def start_removeview(args):
+    dset = dataset.recv()
+    app = QtGui.QApplication(sys.argv)
+    win = ViewWindow(dset)
+    sys.exit(app.exec_())
