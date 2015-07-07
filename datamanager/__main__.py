@@ -18,6 +18,10 @@ def parse_args():
     create_parser.set_defaults(func=start_create)
 
     rv_parser = subparsers.add_parser('remoteview', help='removeview help')
+    rv_parser.add_argument('--ip', help='ip help', required=False)
+    rv_parser.add_argument('--port', help='port help', required=False)
+    rv_parser.add_argument('--slice', help='slice help default 0:1:1', required=False)
+    rv_parser.add_argument('--stop', help='stop help', required=False, action='store_true')
     rv_parser.set_defaults(func=start_remoteview)
 
     args = parser.parse_args()

@@ -43,7 +43,17 @@ def start_view(args):
     sys.exit(app.exec_())
 
 def start_remoteview(args):
-    dset = dataset.recv()
+    ip = '127.0.0.1' if args.ip == None else args.ip
+    port = '5550' if args.port == None else args.port
+    if args.slice == None:
+        slice = [0,1,1]
+    else:
+        slice = [int(x) for x in args.slice.split(':')]
+    dset = dataset.recv(_slice=slice, ip=ip, port=port)
+
+    if args.stop:
+        dataset.bye(ip=ip, port=port)
+
     app = QtGui.QApplication(sys.argv)
     win = ViewWindow(dset)
     win.show()
