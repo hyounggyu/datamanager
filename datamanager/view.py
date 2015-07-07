@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 import h5py
 from PyQt4 import QtGui
@@ -40,8 +42,11 @@ def start_view(args):
     win = ViewWindow(dset)
     sys.exit(app.exec_())
 
-def start_removeview(args):
+def start_remoteview(args):
     dset = dataset.recv()
     app = QtGui.QApplication(sys.argv)
     win = ViewWindow(dset)
+    win.show()
+    win.activateWindow()
+    win.raise_()
     sys.exit(app.exec_())

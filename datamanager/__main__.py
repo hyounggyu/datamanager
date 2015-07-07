@@ -18,7 +18,7 @@ def parse_args():
     create_parser.set_defaults(func=start_create)
 
     rv_parser = subparsers.add_parser('remoteview', help='removeview help')
-    rv_parser.set_defaults(func=start_view)
+    rv_parser.set_defaults(func=start_remoteview)
 
     args = parser.parse_args()
     if hasattr(args, 'func'):
