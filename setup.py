@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='datamanager',
-    version='0.0.1',
+    version='0.1.0',
     description='Datamanager for X-Ray Nano Imaging Beamline in Pohang Accelerator Laboratory',
     author='Hyounggyu Kim',
     author_email='hgkim10@gmail.com',

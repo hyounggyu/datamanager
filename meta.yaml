@@ -1,6 +1,6 @@
 package:
   name: datamanager
-  version: 0.0.1
+  version: 0.1.0
 
 requirements:
   build:
@@ -12,8 +12,3 @@ requirements:
 about:
   home: http://hyounggyu.com/datamanager
   license: GPL
-
-app:
-  entry: datamanager
-  summary: DataManager
-  type: desk
