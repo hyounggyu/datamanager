@@ -30,7 +30,6 @@ def parse_args():
     remoteview_parser.add_argument('--ip', help='ip help', required=False)
     remoteview_parser.add_argument('--port', help='port help', required=False)
     remoteview_parser.add_argument('--slice', help='slice help ex. 0:1:1', required=False)
-    remoteview_parser.add_argument('--stop', help='stop help', required=False, action='store_true')
     remoteview_parser.set_defaults(func=start_remoteview)
 
     args = parser.parse_args()
