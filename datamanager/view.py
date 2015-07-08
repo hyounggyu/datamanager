@@ -10,22 +10,28 @@ from xni.io import dataset
 
 class ViewWindow(QtGui.QMainWindow):
 
-    def __init__(self, image, parent=None):
+    def __init__(self, data, parent=None):
         super(ViewWindow, self).__init__(parent)
         imv = pg.ImageView()
-        imv.setImage(image)
+        imv.setImage(self._swap(data))
         self.setCentralWidget(imv)
         self.setWindowTitle('ImageView')
         self.show()
+
+    def _swap(self, data):
+        if data.ndim == 2:
+            return np.swapaxes(data, 0, 1)
+        elif data.ndim == 3:
+            return np.swapaxes(data, 1, 2)
+        else:
+            return None
 
 
 def start_view(args):
     group_name = 'original' if args.group == None else args.group
     dataset_name = 'images' if args.dataset == None else args.dataset
-    dset = dataset.load(args.filename, grp=group_name, dset=dataset_name)
-    app = QtGui.QApplication(sys.argv)
-    win = ViewWindow(dset)
-    sys.exit(app.exec_())
+    data = dataset.load(args.filename, grp=group_name, dset=dataset_name)
+    start(data)
 
 
 def start_remoteview(args):
@@ -35,13 +41,16 @@ def start_remoteview(args):
         slice = [0,1,1]
     else:
         slice = [int(x) for x in args.slice.split(':')]
-    dset = dataset.recv(_slice=slice, ip=ip, port=port)
-
     if args.stop:
         dataset.bye(ip=ip, port=port)
 
+    data = dataset.recv(_slice=slice, ip=ip, port=port)
+    start(data)
+
+
+def start(data):
     app = QtGui.QApplication(sys.argv)
-    win = ViewWindow(dset)
+    win = ViewWindow(data)
     win.show()
     win.activateWindow()
     win.raise_()
