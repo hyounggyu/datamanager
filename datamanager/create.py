@@ -193,11 +193,12 @@ def start_create(args):
     images = _findtiff(path, args.image_prefix)
     bgnds = _findtiff(path, args.background_prefix) if args.background_prefix != None else []
     darks = _findtiff(path, args.dark_prefix) if args.dark_prefix != None else []
+    # TODO: dataset.create will accept pathlib
     images = [str(im) for im in images]
     bgnds = [str(im) for im in bgnds]
     darks = [str(im) for im in darks]
-    for i, p in dataset.create(args.output, images, bgnds, darks):
-        print(p)
+    for i, name in dataset.create(args.output, images, bgnds, darks):
+        print(i, name)
 
 
 def start_createqt(args):
