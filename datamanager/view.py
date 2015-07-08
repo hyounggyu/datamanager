@@ -37,13 +37,14 @@ def start_view(args):
 def start_remoteview(args):
     ip = '127.0.0.1' if args.ip == None else args.ip
     port = '5550' if args.port == None else args.port
+    if args.stop:
+        dataset.bye(ip=ip, port=port)
+        return
+
     if args.slice == None:
         slice = [0,1,1]
     else:
         slice = [int(x) for x in args.slice.split(':')]
-    if args.stop:
-        dataset.bye(ip=ip, port=port)
-
     data = dataset.recv(_slice=slice, ip=ip, port=port)
     start(data)
 
