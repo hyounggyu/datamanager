@@ -184,7 +184,7 @@ HDF5 filename: {}'''.format(len(images), len(bgnds), len(darks), os.path.basenam
         msgbox.exec_()
 
 
-def start_createqt(args):
+def start_create(args):
     app = QtGui.QApplication(sys.argv)
     win = CreateWindow()
     win.show()

@@ -1,7 +1,6 @@
 import argparse
 
-from .create import start_create, start_createqt
-from .view import start_view, start_remoteview
+from .create import start_create
 
 def parse_args():
     parser = argparse.ArgumentParser(prog='datamanager')
@@ -9,8 +8,8 @@ def parse_args():
 
     subparsers = parser.add_subparsers(help='sub commands')
 
-    createqt_parser = subparsers.add_parser('createqt', help='createqt help')
-    createqt_parser.set_defaults(func=start_createqt)
+    createqt_parser = subparsers.add_parser('create', help='createqt help')
+    createqt_parser.set_defaults(func=start_create)
 
     args = parser.parse_args()
     if hasattr(args, 'func'):
